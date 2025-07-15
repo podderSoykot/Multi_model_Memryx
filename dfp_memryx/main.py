@@ -15,17 +15,14 @@ import threading
 DFP_PATH = "face_age_gender_combined_v3.dfp"
 DB_PATH = "face_log.db"
 
-# Initialize the database and create tables if needed
 init_db()
 
-# Load OpenCV's Haar Cascade for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-FAISS_THRESHOLD = 1.0  # Matching threshold for FAISS (tune as needed)
-EMBEDDING_DIM = 128  # Now using 128-dim FaceNet encoding
-MAX_AGE = 100  # Used to scale normalized age output from the model
+FAISS_THRESHOLD = 1.0
+EMBEDDING_DIM = 128
+MAX_AGE = 100
 
-# --- FAISS and UUID helpers ---
 def save_faiss_and_uuids(faiss_index, uuids, faiss_path, uuid_path):
     faiss.write_index(faiss_index, faiss_path)
     with open(uuid_path, "wb") as f:
@@ -40,7 +37,6 @@ def load_faiss_and_uuids(faiss_path, uuid_path, embedding_dim=512):
     else:
         return faiss.IndexFlatL2(embedding_dim), []
 
-# --- Output Handlers (Top Level) ---
 def make_output_arcface(arcface_embedding):
     def output_arcface(*outs):
         out = outs[0]
@@ -57,7 +53,7 @@ def make_output_age_gender(age_gender_result):
             age_probs = out[:101]
             age = float(np.sum(np.arange(101) * age_probs))
             gender_probs = out[101:103]
-            gender = float(np.argmax(gender_probs))  # 1=Male, 0=Female
+            gender = float(np.argmax(gender_probs))
         elif len(out.shape) == 1 and out.shape[0] == 2:
             age = float(out[0]) * MAX_AGE
             gender = float(out[1])
@@ -73,14 +69,12 @@ def make_output_age_gender(age_gender_result):
         age_gender_result[1] = gender
     return output_age_gender
 
-# --- Camera Processing Thread ---
 def process_camera(cam):
     camera_id = cam['id']
     video_source = cam['source']
     location = cam['location']
     name = cam['name']
     print(f"[INFO] Starting camera thread: {name} (ID: {camera_id}, Source: {video_source})")
-    # Unique FAISS/UUID files per camera (optional, or use shared for all)
     faiss_path = f"faiss_{camera_id}.index"
     uuid_path = f"uuids_{camera_id}.pkl"
     faiss_index, uuids = load_faiss_and_uuids(faiss_path, uuid_path, EMBEDDING_DIM)
@@ -219,7 +213,6 @@ def process_camera(cam):
     cap.release()
     cv2.destroyAllWindows()
 
-# --- Main: Start a thread for each camera ---
 def main():
     threads = []
     for cam in CAMERAS:
