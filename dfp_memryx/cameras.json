@@ -1,0 +1,26 @@
+[
+  {
+    "id": 0,
+    "name": "Front Desk Cam",
+    "location": "Front Desk",
+    "source": 0
+  },
+  {
+    "id": 1,
+    "name": "Lobby Cam",
+    "location": "Lobby",
+    "source": 1
+  },
+  {
+    "id": 2,
+    "name": "Parking Lot IP Cam",
+    "location": "Parking Lot",
+    "source": "rtsp://192.168.1.71:554/stream"
+  },
+  {
+    "id": 3,
+    "name": "Entrance HTTP Cam",
+    "location": "Entrance",
+    "source": "http://192.168.1.72:8080/video"
+  }
+]
